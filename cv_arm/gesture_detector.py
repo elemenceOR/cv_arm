@@ -16,15 +16,10 @@ class GestureDetector(Node):
     def __init__(self):
         super().__init__('gesture_detector')
         
-        # --- CONFIGURATION ---
-        # DEFAULT: Use 0 for USB webcam, OR put your phone's URL string here
-        # Example: "http://192.168.1.50:8080/video"
         self.declare_parameter('camera_source', 'http://192.168.0.249:8080/video')
         
-        # Get parameter (convert to int if it's a number, keep as string if it's a URL)
         source_param = self.get_parameter('camera_source').get_parameter_value().string_value
         
-        # Try to convert to int (for USB ID), otherwise keep as string (for URL)
         try:
             self.camera_source = int(source_param)
         except ValueError:
