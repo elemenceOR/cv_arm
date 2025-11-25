@@ -80,6 +80,32 @@ graph TD
 
 ## ROS2 Node Graph
 
+```mermaid
+graph TD
+    A["gesture_detector"] -->|publishes| B["/elbow_position_controller/commands"]
+    
+    B -->|subscribes| C["elbow_position_controller<br/>ros2_control"]
+    
+    C -->|controls| D["joint_state_broadcaster"]
+    C -->|controls| E["robot_state_publisher"]
+    
+    D -->|publishes| F["/joint_states"]
+    E -->|publishes| G["/robot_description"]
+    
+    style A fill:#e1f5ff
+    style B fill:#fff4e1
+    style C fill:#ffe1f5
+    style D fill:#e1ffe1
+    style E fill:#e1ffe1
+    style F fill:#f5e1ff
+    style G fill:#f5e1ff
+    
+    classDef topic fill:#fff4e1,stroke:#f9a825,stroke-width:2px
+    classDef node fill:#e1f5ff,stroke:#1976d2,stroke-width:2px
+    
+    class B,F,G topic
+    class A,C,D,E node
+```
 
 ## Message Types
 
