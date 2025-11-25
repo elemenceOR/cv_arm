@@ -1,0 +1,52 @@
+# ROS2 Build artifacts
+build/
+install/
+log/
+*.egg-info/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Gazebo
+.gazebo/
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Compressed files (don't commit zips to repo)
+*.zip
+*.tar.gz
+*.tar
+
+# ROS2 specific
+*.pyc
+*.pyo
+.catkin_workspace
+devel/
+devel_isolated/
+
+# Temporary files
+*.tmp
+*.log
+*.cache

@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="vision_arm">
+
+    <!-- mass is in kg
+         lengths/positions in m
+         inertia in kgm2
+         velocity - revolute = rad/s 
+                  - prismatic(sliding) = m/s
+         effort   - revolute = Nm(torque) 
+                  - prismatic(sliding) = N -->
+
+    <xacro:property name="arm_mass" value="1.0" />
+    <xacro:property name="arm_length" value="0.5" />
+    <xacro:property name="arm_width" value="0.08" />
+    
+    <!-- Define an empty 'world' link so it can serve as the parent (root) -->
+    <link name="world" />
+    
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <box size="0.1 0.1 0.1"/>
+            </geometry>
+            <material name="grey">
+                <color rgba="0.5 0.5 0.5 1.0"/>
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.1 0.1 0.1"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.5"/>
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+        </inertial>
+    </link>
+
+    <joint name="world_to_base_joint" type="fixed">
+        <parent link="world"/>
+        <child link="base_link"/>
+        <origin xyz="0 0 1" rpy="0 0 0"/>
+    </joint>
+
+    <link name="upper_arm_link">
+        <visual>
+            <geometry>
+                <box size="${arm_width} ${arm_width} ${arm_length}"/>
+            </geometry>
+            <origin xyz="0 0 ${-arm_length/2.0}" rpy="0 0 0"/>
+            <material name="blue">
+                <color rgba="0.0 0.0 0.8 1.0"/>
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${arm_width} ${arm_width} ${arm_length}"/>
+            </geometry>
+            <origin xyz="0 0 ${-arm_length/2.0}" rpy="0 0 0"/>
+        </collision>
+        <inertial>
+            <mass value="${arm_mass}"/>
+            <origin xyz="0 0 ${-arm_length/2.0}" rpy="0 0 0"/>
+            <inertia ixx="0.005" ixy="0.0" ixz="0.0" 
+                    iyy="0.005" iyz="0.0" 
+                    izz="0.001" />
+        </inertial>
+    </link>
+
+    <joint name="base_to_upper_arm_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="upper_arm_link"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+    <link name="lower_arm_link">
+        <visual>
+            <geometry>
+                <box size="${arm_width} ${arm_width} ${arm_length}"/>
+            </geometry>
+            <origin xyz="0 0 ${-arm_length/2.0}" rpy="0 0 0"/>
+            <material name="red">
+                <color rgba="0.8 0.0 0.0 1.0"/>
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${arm_width} ${arm_width} ${arm_length}"/>
+            </geometry>
+            <origin xyz="0 0 ${-arm_length/2.0}" rpy="0 0 0"/>
+        </collision>
+        <inertial>
+            <mass value="${arm_mass}"/>
+            <origin xyz="0 0 ${-arm_length/2.0}" rpy="0 0 0"/>
+            <inertia ixx="0.005" ixy="0.0" ixz="0.0" 
+                    iyy="0.005" iyz="0.0" 
+                    izz="0.001" />
+        </inertial>
+    </link>
+
+    <joint name="elbow_joint" type="revolute">
+        <parent link="upper_arm_link"/>
+        <child link="lower_arm_link"/>
+        <origin xyz="0 0 ${-arm_length}" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="0.1" upper="2.721" effort="100.0" velocity="1.0"/>
+    </joint>
+
+    <!-- Gazebo materials -->
+    <gazebo reference="base_link">
+        <material>Gazebo/Grey</material>
+    </gazebo>
+    <gazebo reference="upper_arm_link">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+    <gazebo reference="lower_arm_link">
+        <material>Gazebo/Red</material>
+    </gazebo>
+
+    <!-- ROS 2 Control -->
+    <ros2_control name="GazeboSystem" type="system">
+        <hardware>
+            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+        </hardware>
+        <joint name="elbow_joint">
+            <command_interface name="position">
+                <param name="min">0.1</param>
+                <param name="max">2.721</param>
+            </command_interface>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+            <state_interface name="effort"/>
+        </joint>
+    </ros2_control>
+
+    <!-- Gazebo ROS 2 Control Plugin -->
+    <gazebo>
+        <plugin filename="ign_ros2_control-system" 
+                name="ign_ros2_control::IgnitionROS2ControlPlugin">
+            <parameters>$(find cv_arm)/config/elbow_controllers.yaml</parameters>
+        </plugin>
+    </gazebo>
+
+</robot>

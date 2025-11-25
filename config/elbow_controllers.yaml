@@ -1,0 +1,14 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    elbow_position_controller:
+      type: position_controllers/JointGroupPositionController
+
+elbow_position_controller:
+  ros__parameters:
+    joints:
+      - elbow_joint
